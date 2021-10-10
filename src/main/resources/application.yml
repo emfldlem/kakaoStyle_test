@@ -1,0 +1,72 @@
+server:
+  port: 8060
+
+
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+
+---
+
+##############
+### local
+##############
+spring:
+  profiles: local
+
+  datasource:
+    hikari:
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+      jdbc-url: jdbc:log4jdbc:mysql://localhost:3306/kakaostyle?characterEncoding=UTF-8&serverTimezone=UTC
+      username: root
+      password: dpdjvkt13@$
+
+---
+##############
+### dev
+##############
+spring:
+  profiles: dev
+  
+  datasource:
+    hikari:
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+      jdbc-url: jdbc:log4jdbc:mysql://localhost:3306/kakaostyle?characterEncoding=UTF-8&serverTimezone=UTC
+      username: admin
+      password: dpdjvkt13@$
+---
+
+##############
+### realtest
+##############
+spring:
+  profiles: realtest
+
+  datasource:
+    hikari:
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+      jdbc-url: jdbc:log4jdbc:mysql://localhost:3306/kakaostyle?characterEncoding=UTF-8&serverTimezone=UTC
+      username: root
+      password: dpdjvkt13@$
+---
+
+##############
+### real
+##############
+spring:
+  profiles: real
+
+  datasource:
+    hikari:
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+      jdbc-url: jdbc:log4jdbc:mysql://localhost:3306/kakaostyle?characterEncoding=UTF-8&serverTimezone=UTC
+      username: root
+      password: dpdjvkt13@$
