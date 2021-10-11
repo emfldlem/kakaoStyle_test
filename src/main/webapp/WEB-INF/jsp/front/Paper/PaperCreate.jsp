@@ -3,7 +3,7 @@
 <%@ page import="com.emfldlem.DocuApproval.Paper.Entity.PaperMgmtEntity" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<jsp:include page="../common/header.jsp"/>
+<jsp:include page="../../common/header.jsp"/>
 
 <%
     PaperMgmtEntity paper = (PaperMgmtEntity) request.getAttribute("paperMgmtEntity");
@@ -72,10 +72,54 @@
             $(obj).find(".appr_ord").text(++i);
         })
     }
+    function getschMbrList() {
+        var param = {
+            mbr_nm : $('#schMbrNm').val()
+        }
+        $('#div_schMbrList').load("/popup/getSchMbrList",param);
+    }
+
+    function modalAddMbr() {
+        var checkList = $("#mbrListTable [name='list-checkbox']:checked");
+        if(checkList.length == 0 ) {
+            alert("결재자를 선택해주세요.");
+            return false;
+        }
+        else {
+            var appr_ord = $('#appr_list tbody tr').length;
+            var mbr_no_list = "";
+            $.each($('#appr_list input.mbr_no'), function (i, obj) {
+                mbr_no_list = mbr_no_list + $(obj).val()+",";
+            })
+            $.each(checkList, function (i, obj) {
+                var $this = $(obj).parent().parent().parent().parent();
+                var row_mbr_no = $this.find(".mbr_no").val();
+                var row_mbr_nm = $this.find(".mbr_nm").text();
+                var row_dept_nm = $this.find(".dept_nm").text();
+
+                if(mbr_no_list.indexOf(row_mbr_no)  > -1 ) {
+                    return false;
+                } else {
+                    $('#appr_list tbody').append("<tr>\n" +
+                        "<input type='hidden' class='mbr_no' value='"+row_mbr_no+"'>" +
+                        "<td class='appr_ord text-center'>" + (++appr_ord) + "</td>\n" +
+                        "<td>"+row_mbr_nm+"</td>\n" +
+                        "<td>"+row_dept_nm+"</td>\n" +
+                        "<td><button type=\"button\" class=\"btn-xs btn-default del_appr\" onclick='del_appr(this);'>x</button></td>\n" +
+                        "</tr>")
+                }
+
+            })
+            $('#div_schMbrList').html('');
+            $('#modal-default').modal('hide');
+
+        }
+
+    }
 
     $(document).ready(function () {
         //결재자 추가 버튼
-        $('#add_appr').click(function () {
+       /* $('#add_appr').click(function () {
 
             var appr_ord = $('#appr_list tbody tr').length;
 
@@ -86,7 +130,7 @@
                 "<td>John Doe</td>\n" +
                 "<td><button type=\"button\" class=\"btn-xs btn-default del_appr\" onclick='del_appr(this);'>x</button></td>\n" +
                 "</tr>")
-        })
+        })*/
 
         //전자 결재 문서 제출
         $('#appr_req_btn').click(function () {
@@ -129,17 +173,17 @@
             <% } %>
             var rows = [];
             $('#appr_list tbody tr').each(function (index, trItem) {
-                if (index != 0) {
-                    var row = {};
-                    var mbr_no = $(trItem).find(".mbr_no").val();
-                    var appr_ord = $(trItem).find(".appr_ord").text();
 
-                    row.paperNo = paperNo;
-                    row.mbrNo = mbr_no;
-                    row.apprOrd = appr_ord;
+                var row = {};
+                var mbr_no = $(trItem).find(".mbr_no").val();
+                var appr_ord = $(trItem).find(".appr_ord").text();
 
-                    rows.push(row);
-                }
+                row.paperNo = paperNo;
+                row.mbrNo = mbr_no;
+                row.apprOrder = appr_ord;
+
+                rows.push(row);
+
             });
 
             var param = {
@@ -151,12 +195,12 @@
             };
 
             $.ajax({
-                url: "/paper/savePaper",
-                type: "POST",
+                url        : "/paper/savePaper",
+                type       : "POST",
                 contentType: 'application/json',
-                dataType: "JSON",
-                data: JSON.stringify(param),
-                success: function (result) {
+                dataType   : "JSON",
+                data       : JSON.stringify(param),
+                success    : function (result) {
                     console.log(result);
                     if (result.res_cd === 'S') {
                         alert("전자결제를 신청하였습니다.");
@@ -204,19 +248,19 @@
                     <div class="form-group">
                         <label>분류</label>
                         <select class="form-control" id="paper_se">
-                            <option value="paper_se_10">분류 1</option>
-                            <option value="paper_se_20">분류 2</option>
-                            <option value="paper_se_30">분류 3</option>
+                            <option value="10">분류 1</option>
+                            <option value="20">분류 2</option>
+                            <option value="30">분류 3</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="paper_desc">Message</label>
+                        <label for="paper_desc">내용</label>
                         <textarea class="form-control" rows="4" id="paper_desc"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <input type="submit" class="btn btn-primary" value="전자문서 결제 신청" id="appr_req_btn">
+                        <button type="button" class="btn btn-block btn-primary" id="appr_req_btn">전자문서 결제 신청</button>
                     </div>
                 </div>
                 <div class="col-5 align-items-center justify-content-center">
@@ -227,7 +271,7 @@
 
                                     <div class="card-tools">
                                         <div class="btn-group w-100">
-                                            <span class="btn btn-success col fileinput-button dz-clickable" id="add_appr">
+                                            <span class="btn btn-success col fileinput-button dz-clickable" <%--id="add_appr"--%> data-toggle="modal" data-target="#modal-default">
                                                 <i class="fas fa-plus"></i>
                                                 <span>승인자 추가</span>
                                             </span>
@@ -239,10 +283,10 @@
                                     <table class="table table-hover text-nowrap" id="appr_list">
                                         <thead>
                                         <tr>
-                                            <th>결제순서</th>
-                                            <th>ID</th>
-                                            <th>User</th>
-                                            <th></th>
+                                            <th style="width: 15px;">결제순서</th>
+                                            <th>이름</th>
+                                            <th>부서</th>
+                                            <th style="width: 15px;"></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -259,10 +303,48 @@
             </div>
         </div>
 
+        <div class="modal fade" id="modal-default">
+            <div class="modal-dialog  modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">결재자 검색</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-10">
+                                <div class="form-group row">
+                                    <label for="schMbrNm" class="col-sm-2 col-form-label">이름</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="schMbrNm">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-block btn-primary" id="schMbrBtn" onclick="getschMbrList();">검색</button>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;" id="div_schMbrList">
+
+
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-primary" id="modalAddMbrBtn" onclick="modalAddMbr()">추가</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+
 
     </section>
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
 
-<jsp:include page="../common/footer.jsp"/>
+<jsp:include page="../../common/footer.jsp"/>

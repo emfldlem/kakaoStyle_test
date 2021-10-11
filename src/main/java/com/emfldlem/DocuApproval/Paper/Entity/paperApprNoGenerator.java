@@ -28,13 +28,13 @@ public class paperApprNoGenerator implements IdentifierGenerator {
         Connection connection = sharedSessionContractImplementor.connection();
 
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT LPAD(SUBSTRING(MAX(paper_appr_no),2,9)+1,9,0)  AS CDNUM FROM paper_appr_mgmt");
+            PreparedStatement ps = connection.prepareStatement("SELECT LPAD(SUBSTRING(MAX(paper_appr_no),3,9)+1,9,0)  AS CDNUM FROM paper_appr_mgmt");
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
-                if(null==rs.getString("CDNUM")) return prefix+"00000001";
+                if(null==rs.getString("CDNUM")) return prefix+"000000001";
                 if(null!=rs.getString("CDNUM")){
                     if(o1.getPaperApprNo().length() >=10){
-                        return o1.getPaperApprNo();
+                        return o1.getPaperNo();
                     }
                     if(o1.getPaperApprNo().length() < 10){
                         return prefix+rs.getString("CDNUM");

@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
@@ -29,6 +30,12 @@ public class PaperApprMgmtEntity implements Serializable {
     @Column(name="mbr_no")
     String mbrNo;
 
+    @Formula("(select c.mbr_nm from mbr_mgmt c where c.mbr_no = mbr_no)")
+    String mbrNm;
+
+    @Formula("(select c.dept_nm from dept_mgmt c, mbr_mgmt d where d.mbr_no = mbr_no and c.dept_no = d.dept_no)")
+    String deptNm;
+
     @Column(name="appr_order")
     String apprOrder;
 
@@ -40,12 +47,12 @@ public class PaperApprMgmtEntity implements Serializable {
 
     @Column(name="reg_id")
     String regId;
-    @Column(name="reg_date")
-    String regDate;
+    @Column(name="reg_dtime")
+    String regDtime;
 
     @Column(name="upd_id")
     String updId;
-    @Column(name="upd_date")
-    String updDate;
+    @Column(name="upd_dtime")
+    String updDtime;
 
 }
